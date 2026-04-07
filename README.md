@@ -1,111 +1,66 @@
-# Grid Clash Protocol (DOMX v1)
+# Grid-Clash
 
-## Overview
-This project implements a UDP-based multiplayer synchronization protocol for the **Grid Clash** game.  
-It is part of the CSE361 (Computer Networking) course at Ain Shams University — Project 2: *State Synchronization using UDP*.
+Grid-Clash is a networked multiplayer game project. It features a client-server architecture with specialized testing environments for evaluating network performance under various conditions (such as packet loss and latency).
 
-The **Grid Clash Protocol (DOMX v1)** enables multiple clients to connect to a central server, compete to claim grid cells, and stay synchronized with low latency using **Delta Encoding**.
+## Project Structure
 
----
+The repository is divided into two main components: the core game implementation and the testing suite.
 
-## 🧩 Features
-- UDP-based communication with structured message headers.
-- Server broadcasts snapshots (Full, Delta, Heartbeat) at a configurable frequency.
-- Delta Encoding strategy — only changed cells are sent.
-- Heartbeat messages when no grid changes occur.
-- Client GUI (Tkinter) showing a 10×10 clickable grid.
-- Automatic GAME_OVER message with winner/loser display.
+### `Grid-Clash-main/` (Core Game)
+Contains the primary source code for the game's client and server.
+* `server.py` / `server_final.py`: The main game server handling client connections and game state.
+* `client.py` / `client_final.py`: The standard text/console-based client.
+* `client_pygame.py`: A graphical client implementation using Pygame.
+* `client_loss.py`: A client designed to simulate or handle packet loss.
+* `run_baseline.bat`: Windows batch script to run a baseline test or launch the server/clients.
 
----
+### `Grid-Clash-test/` (Testing Suite)
+Contains scripts and tools for network emulation, testing, and performance metrics analysis.
+* **Network Emulation (Linux/tc netem)**: 
+  * `netem_apply.sh`: Applies network constraints (delay, loss, duplication) to test network resilience.
+  * `netem_status.sh`: Checks current network emulation rules.
+  * `netem_clear.sh`: Removes all network emulation rules.
+* **Testing Scripts**:
+  * `run_all_tests.sh`: Automates the execution of multiple test scenarios.
+  * `client_test.py`: A specialized client for automated testing.
+  * `analyze_metrics.py`: Analyzes the output data and generates performance metrics.
+* **Documentation**: Detailed testing documentation can be found in `TESTING.md`.
 
-## ⚙️ Requirements
-- **Python 3.10+**
-- **Tkinter** (preinstalled with most Python distributions)
-- **Windows or Linux terminal**
+## Setup and Installation
 
----
+1. Ensure you have Python 3.x installed.
+2. If using the graphical client, install Pygame:
+   ```bash
+   pip install pygame
+   ```
 
-## 🧠 Protocol Summary
-| Message Type | Code | Direction | Description |
-|---------------|-------|------------|--------------|
-| INIT | 0 | Client → Server | Client joins |
-| ACK | 1 | Client → Server | Snapshot acknowledgment |
-| EVENT | 2 | Client → Server | Cell acquisition event and Game over |
-| FULL | 3 | Server → Client | Entire grid snapshot |
-| DELTA | 4 | Server → Client | Changed cells only |
-| HEARTBEAT | 5 | Server → Client | No state change |
+## Running the Game
 
----
+1. **Start the Server:**
+   Navigate to the `Grid-Clash-main` directory and start the game server.
+   ```bash
+   python server.py
+   ```
+   *(Alternatively, use `server_final.py` for the finalized version)*
 
-## Demo Video Link
+2. **Start the Client:**
+   Open a new terminal window, navigate to the `Grid-Clash-main` directory, and start a client.
+   ```bash
+   python client_pygame.py
+   ```
+   *(Run multiple clients to test multiplayer functionality)*
 
-https://drive.google.com/drive/folders/1vN0y8G6QoTjQEefphvbgA9B2HeaHuAs7?usp=sharing
+## Testing and Network Emulation
 
----
+To evaluate the game's performance under restricted network conditions, navigate to the `Grid-Clash-test` directory.
 
-## 🖥️ How to Run Locally (Manual Setup)
-
-### 1. Navigate to the project folder
-```bash
-cd "C:\Users\Aser\Desktop\Drive\ASU\5th Term FALL 2025\CSE361 - Computer Networking\Grid Clash Protocol\My Try"
-```
-
-### 2. Start the server
-```bash
-python server.py
-```
-
-### 3. Launch clients (in separate terminals)
-```bash
-python client.py
-python client.py
-python client.py
-python client.py
-```
-
-Each client will open a **Tkinter grid interface** where cells can be clicked.  
-Each click sends an **EVENT** to the server, which updates all clients through **DELTA** or **FULL** snapshots.
-
-### 4. Game Over
-When all 100 cells are acquired:
-- The server sends a **GAME_OVER** message to all clients.  
-- Clients display either:
-  - 🏆 *"You won! Winner: Player X"*  
-  - ❌ *"You lost! Winner: Player X"*
-
----
-
-## 🧪 Automated Baseline Local Test
-
-An automated baseline test script is included for demonstration purposes.
-
-### Run the script:
-```bash
-run_baseline.bat
-```
-
-This will:
-1. Start the server.
-2. Launch 4 clients automatically (each in a new window).
-3. Demonstrate the core multiplayer synchronization locally.
-
----
-
-## 🧰 Files Included
-| File | Description |
-|------|--------------|
-| `server.py` | Main server file handling UDP communication and snapshot broadcasting |
-| `client.py` | Client with Tkinter GUI for interacting with the grid |
-| `run_baseline.bat` | Automated script to launch the baseline test |
-| `README.md` | Project documentation and usage guide |
-
----
-
-## 🧩 Developer Notes
-- Default server port: `12000`
-- Max packet size: `1200 bytes`
-- Snapshot frequency: 20 Hz (adjustable in `server.py`)
-- Protocol ID: `"DOMX"`
-- Header format: `!4s B B I I Q H`
-
----
+1. **Run Automated Tests:**
+   ```bash
+   ./run_all_tests.sh
+   ```
+2. **Analyze Results:**
+   After tests complete, analyze the metrics:
+   ```bash
+   python analyze_metrics.py
+   ```
+*(Note: `.sh` scripts requiring `tc netem` are designed for Linux environments.)*
